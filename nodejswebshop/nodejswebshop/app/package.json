@@ -1,0 +1,13 @@
+{
+  "name": "mon_application",
+  "version": "1.0.0",
+  "description": "Une application Node.js",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js -L"
+  },
+  "dependencies": {
+    "express": "^4.19.1",
+    "nodemon": "^3.1.0"
+  }
+}

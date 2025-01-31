@@ -70,3 +70,9 @@ input[type="submit"] {
 input[type="submit"]:hover {
   background-color: rgb(106, 27, 154); /* Darker violet when hovered */
 }
+
+button {
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+}

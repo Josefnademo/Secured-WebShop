@@ -1,5 +1,5 @@
-import { DataTypes, INTEGER } from "sequelize";
-import { sequelize } from "../db/sequelize.mjs";
+const mysql = require("mysql2");
+const db = require("./db/db");
 
 const UserModel = (sequelize, DataTypes) => {
   return sequelize.define("User", {

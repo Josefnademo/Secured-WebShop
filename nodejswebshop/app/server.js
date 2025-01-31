@@ -33,9 +33,9 @@ app.post("/registration", async (req, res) => {
   const { username, password } = req.body;
   try {
     // Generating salt for bcrypt
-    const salt = await bcrypt.genSalt(10); // 10 — количество раундов
+    const salt = await bcrypt.genSalt(4); // 10 — nombre de tours
 
-    // Password Hashing
+    // Password Hashing(même si deux utilisateurs ont le même mot de passe, leurs hachages seront différents.)
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Insert data into the database (with encrypted password)

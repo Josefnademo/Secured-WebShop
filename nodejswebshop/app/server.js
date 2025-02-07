@@ -2,7 +2,7 @@ const express = require("express");
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
 const userRoute = require("./routes/User");
-const db = require("./db/db");
+const db = require("./db/db.js");
 /*const path = require("path");*/
 const app = express();
 ///////////////////////////////////////////
@@ -10,17 +10,18 @@ app.set("view engine", "ejs");
 
 //static files support:
 app.use(express.static("public"));
+
 // Middleware for parsing data from the form
 app.use(express.urlencoded({ extended: true }));
 
 //default route
 app.get("/", (req, res) => {
-  res.render("home", { name: "" });
+  res.render("home", { name: "Guest" });
 });
 
 // Other routes and middleware
 app.get("/login", (req, res) => {
-  res.render("login", { name: "Yosef" });
+  res.render("login", { name: "Mon  cœur " });
 });
 
 // Other routes and middleware
@@ -33,7 +34,7 @@ app.post("/registration", async (req, res) => {
   const { username, password } = req.body;
   try {
     // Generating salt for bcrypt
-    const salt = await bcrypt.genSalt(4); // 10 — nombre de tours
+    const salt = await bcrypt.genSalt(4); // 4 — nombre de tours
 
     // Password Hashing(même si deux utilisateurs ont le même mot de passe, leurs hachages seront différents.)
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -55,6 +56,7 @@ app.post("/registration", async (req, res) => {
   }
 });
 
+//to logining in your account
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
@@ -87,7 +89,7 @@ app.post("/login", (req, res) => {
 app.use((req, res) => {
   const message =
     "Impossible de trouver la ressource demandée ! Vous pouvez essayer une autre URL.";
-  res.status(404).json({ message }); //json attends l'objet
+  res.status(404).json(message); //json attends l'objet
 });
 
 // server butting

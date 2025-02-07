@@ -1,0 +1,78 @@
+body {
+  max-width: 100%;
+  max-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: medium;
+  background-color: #f4f4f9; /* Light background */
+  margin: 0;
+  padding: 0;
+}
+
+input {
+  border: 2px solid rgb(125, 49, 197);
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 0;
+  width: 100%; /* Ensure inputs are responsive */
+  box-sizing: border-box; /* Include padding/border in width */
+}
+
+h1,
+h2 {
+  margin: 1% 0;
+  color: #333; /* Darker text for readability */
+}
+
+h1 {
+  font-size: 4rem; /* Larger font size for the title */
+  text-align: center;
+  padding: auto;
+  margin-top: 5%;
+  /* background-color: antiquewhite;*/
+}
+
+h2 {
+  font-size: 1.2rem;
+  color: #666; /* Lighter color for subheading */
+}
+
+.login {
+  display: grid;
+  grid-template-columns: 2fr 4fr;
+  grid-template-rows: auto auto auto;
+  column-gap: 10px;
+  row-gap: 10px;
+  justify-items: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 50px auto; /* Center the form in the page */
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+input[type="submit"] {
+  background-color: blueviolet;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+input[type="submit"]:hover {
+  background-color: rgb(106, 27, 154); /* Darker violet when hovered */
+}
+
+button {
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+}

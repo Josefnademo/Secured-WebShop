@@ -9,14 +9,25 @@
   <body>
     <h1>Registration</h1>
     <form form action="/registration" method="POST">
-      <!-- form action="/registration" method="POST"-->
       <label for="username">Utilisateur :</label>
-      <input type="text" id="username" name="username" required /><br />
+      <input
+        placeholder="login"
+        type="text"
+        id="username"
+        name="username"
+        required
+      /><br />
 
       <label for="password">Mot de passe :</label>
-      <input type="password" id="password" name="password" required /><br />
+      <input
+        placeholder="mot de passe"
+        type="password"
+        id="password"
+        name="password"
+        required
+      /><br />
 
-      <button type="submit" value="Submit">S'inscrire</button>
+      <button type="submit" value="Submit">Créer un nouveau compte</button>
     </form>
     <p>Déjà inscrit ? <a href="login">Se connecter</a></p>
   </body>

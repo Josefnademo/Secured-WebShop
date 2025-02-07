@@ -19,11 +19,12 @@ db.connect((err) => {
 });
 
 // Export db for use in other files
-module.export = db;
+module.exports = db;
 
+///////code to recraeate table Users///////
 /*CREATE TABLE Users (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(50) NOT NULL UNIQUE,
+  username VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL
 );
 */

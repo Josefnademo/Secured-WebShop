@@ -36,7 +36,7 @@ app.post("/registration", async (req, res) => {
     // Generating salt for bcrypt
     const salt = await bcrypt.genSalt(4); // 4 — nombre de tours
 
-    // Password Hashing(même si deux utilisateurs ont le même mot de passe, leurs hachages seront différents.)
+    // Password Hashing(even if two users have the same password, their hashes will be different.)
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Insert data into the database (with encrypted password)
@@ -60,7 +60,7 @@ app.post("/registration", async (req, res) => {
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
-  // Rechercher un utilisateur dans la base de données
+  //Search for a user in the database
   const query = "SELECT * FROM Users WHERE username = ?";
   db.query(query, [username], async (err, results) => {
     if (err) {
@@ -94,5 +94,5 @@ app.use((req, res) => {
 
 // server butting
 app.listen(8080, () => {
-  console.log("Server running on port 8080✅ ");
+  console.log("Serveur fonctionnant sur le port 8080✅ ");
 });

@@ -3,26 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../public/css/style.css" />
+    <link rel="stylesheet" href="../css/style.css" />
     <title>Login</title>
   </head>
   <body>
     <h1>Login</h1>
     <div class="login">
       <h2>Bonjour! <%= name %> ,Vous pouvez vous connecter ici</h2>
-      <form>
+      <form action="/login" method="POST">
         <h2>écrivez votre nom d'utilisateur ici</h2>
         <div class="name">
-          <input type="text" placeholder="username" />
+          <input type="text" placeholder="username" required />
         </div>
 
         <h2>écrivez votre mot de passe ici</h2>
         <div class="password">
-          <input type="password" placeholder="mot de passe" />
+          <input type="password" placeholder="mot de passe" required />
         </div>
         <input type="submit" value="Se connecter" />
       </form>
     </div>
-    <p>Voulez vous s'inscrir ? <a href="registration">s'inscrir</a></p>
+    <p class="login">
+      Voulez vous s'inscrir ? <a href="registration">S'inscrir</a>
+    </p>
   </body>
 </html>

@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <title>Page d’administration</title>
+    <link rel="stylesheet" href="../css/style.css" />
   </head>
   <body>
     <h1>Bienvenue, sur la page d’administration!</h1>
-    <p>Chercher pour des details des utilisateurs :</p>
+    <h2>Chercher pour des details des utilisateurs :</h2>
 
     <search>
-      <form>
+      <form class="admin" action="/admin" method="GET">
         <input
           name="usersrch"
           id="usersrch"
@@ -19,7 +20,9 @@
       </form>
     </search>
 
-    <a href="./details">Voire mes details entant qu'admin</a>
-    <button><a href="./home">Se déconnecter</a></button>
+    <button class="admin">
+      <a href="./details">Voire mes details entant qu'admin</a>
+    </button>
+    <button class="admin"><a href="./home">Se déconnecter</a></button>
   </body>
 </html>

@@ -1,11 +1,24 @@
+const https = require("https");
+const fs = require("fs");
 const express = require("express");
 const mysql = require("mysql2");
+const bodyParser = require("express");
 const bcrypt = require("bcrypt");
 const userRoute = require("./routes/User");
 const db = require("./db/db.js");
 /*const path = require("path");*/
 const app = express();
 //const jwt = require("jsonwebtoken");  ---problem when installed "npm install jsonwebtoken" i had 13 vulnerabilities so i couldn't impliment this, FIX!
+
+/*
+// Load SSL certificates
+const options = {
+  key: fs.readFileSync("key.pem"), // Path to your private key
+  cert: fs.readFileSync("cert.pem"), // Path to your certificate
+};*/
+
+app.use(bodyParser.urlencoded({ extended: true })); // parser to interact with form-data
+app.use(bodyParser.json()); // for JSON-requests
 
 ///////////////////////////////////////////
 app.set("view engine", "ejs");
@@ -15,6 +28,21 @@ app.use(express.static("public"));
 
 // Middleware for parsing data from the form
 app.use(express.urlencoded({ extended: true }));
+/*
+// Create HTTPS server with Middleware
+https.createServer(options, app).listen(8443, () => {
+  console.log("HTTPS server running on https://localhost:8443 ✅");
+});
+
+// Redirige les requêtes HTTP vers HTTPS
+app.use((req, res, next) => {
+  if (req.protocol !== "https") {
+    return res.redirect(
+      "https://" + req.headers.host.replace(8080, 8443) + req.url
+    );
+  }
+  next();
+});*/
 
 //Default route
 app.get(["/", "/home", "/accueil"], (req, res) => {
@@ -63,16 +91,18 @@ app.get("/admin", (req, res) => {
 });
 */
 
+// Route for fetching and displaying user details
 app.get("/details", (req, res) => {
-  const token = req.headers["authorization"]; // Get token from the header or query
+  const token = req.headers["authorization"]?.split(" ")[1]; // Get token from the header (Bearer token format)
 
   if (!token) {
-    return res.redirect("/login"); // If token is not present, redirect to login
+    return res.redirect("/home"); // If token is not present, redirect to login
   }
 
-  jwt.verify(token, "yourSecretKey", (err, decoded) => {
+  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
     if (err) {
-      return res.status(401).send("Invalid or expired token");
+      console.error("Invalid or expired token:", err);
+      return res.status(401).send("Token invalide ou expiré");
     }
 
     const userId = decoded.userId;
@@ -80,12 +110,15 @@ app.get("/details", (req, res) => {
     const query = "SELECT * FROM Users WHERE id = ?";
     db.query(query, [userId], (err, results) => {
       if (err) {
-        console.error("Error fetching user details:", err);
-        return res.status(500).send("Database error");
+        console.error(
+          "Erreur lors de la récupération des détails de l'utilisateur:",
+          err
+        );
+        return res.status(500).send("Erreur de base de données");
       }
 
       if (results.length === 0) {
-        return res.status(404).send("User not found");
+        return res.status(404).send("Utilisateur non trouvé");
       }
 
       const user = results[0];
@@ -108,66 +141,97 @@ app.get("/logout", (req, res) => {
 // Route for handling POST request for registration
 app.post("/registration", async (req, res) => {
   const { username, password, role = "user" } = req.body;
+
   try {
-    // Generating salt for bcrypt
-    const salt = await bcrypt.genSalt(4); // 4 — nombre de tours
-
-    // Password Hashing(even if two users have the same password, their hashes will be different.)
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Insert data into the database (with encrypted password)
-    const query =
-      "INSERT INTO Users (username, password, role) VALUES (?, ?, ?)";
-    db.query(query, [username, hashedPassword, role], (err, results) => {
-      //error: Database error
+    // Check if the username already exists
+    const checkQuery = "SELECT * FROM Users WHERE username = ?";
+    db.query(checkQuery, [username], async (err, results) => {
       if (err) {
-        console.error("Erreur lors de l'ajout de l'utilisateur :", err);
+        console.error(
+          "Erreur lors de la vérification du nom d'utilisateur :",
+          err
+        );
         return res.status(500).send("Erreur de base de données");
       }
 
-      //After successful registration, we redirect to the login page
-      res.redirect("/login");
+      // If the username already exists, return an error message
+      if (results.length > 0) {
+        return res.status(400).send("Ce nom d'utilisateur est déjà pris");
+      }
+
+      try {
+        // Generating salt for bcrypt
+        const salt = await bcrypt.genSalt(4); // `4 — number of turns of the algorithm`
+
+        // Password Hashing(even if two users have the same password, their hashes will be different.)
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Insert data into the database (with encrypted password)
+        const query =
+          "INSERT INTO Users (username, password, role) VALUES (?, ?, ?)";
+        db.query(query, [username, hashedPassword, role], (err, results) => {
+          //error: Database error
+          if (err) {
+            console.error("Erreur lors de l'ajout de l'utilisateur :", err);
+            return res.status(500).send("Erreur de base de données");
+          }
+
+          // After successful registration, we redirect to the details page
+          res.redirect("/login");
+        });
+      } catch (err) {
+        console.error("Erreur lors du hachage du mot de passe :", err);
+        res.status(500).send("Erreur lors du hachage du mot de passe");
+      }
     });
-    //error: Password hashing error
   } catch (err) {
-    console.error("Erreur lors du hachage du mot de passe :", err);
-    res.status(500).send("Erreur lors du hachage du mot de passe");
+    console.error("Erreur lors du traitement de la demande :", err);
+    res.status(500).send("Erreur lors du traitement de la demande");
   }
 });
 
-//to logining in your account
-app.post("/login", (req, res) => {
+// Route for handling POST request for login
+app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  //Search for a user in the database
-  const query = "SELECT * FROM Users WHERE username = ?";
-  db.query(query, [username], async (err, results) => {
-    //error: Database error
-    if (err) {
-      console.error("Erreur lors de la recherche de l'utilisateur :", err);
-      return res.status(500).send("Erreur de base de données");
-    }
-    //error: Utilisateur non trouvé
-    if (results.length === 0) {
-      return res.status(400).send("Utilisateur non trouvé");
-    }
+  try {
+    // Query to get the user by username
+    const query = "SELECT * FROM Users WHERE username = ?";
 
-    const user = results[0];
-    // Compare the entered password with the encrypted password in the database
-    const match = await bcrypt.compare(password, user.password);
+    db.query(query, [username], async (err, results) => {
+      // Error: Database query error
+      if (err) {
+        console.error("Erreur lors de la recherche de l'utilisateur :", err);
+        return res.status(500).send("Erreur de base de données");
+      }
 
-    if (match) {
-      // Generate a token with user data
+      // If no user found
+      if (results.length === 0) {
+        return res.status(400).send("Utilisateur ou mot de passe incorrect");
+      }
+
+      const user = results[0];
+
+      // Compare the entered password with the stored hashed password
+      const match = await bcrypt.compare(password, user.password);
+
+      // If password doesn't match
+      if (!match) {
+        return res.status(400).send("Utilisateur ou mot de passe incorrect");
+      }
+
+      // If login is successful, you can generate a JWT token or set a session
       const token = jwt.sign({ userId: user.id }, "yourSecretKey", {
-        expiresIn: "1h",
+        expiresIn: "1000h",
       });
 
-      // Send the token to the client (can be stored in localStorage or sent as a header)
-      res.json({ token: token });
-    } else {
-      res.status(400).send("Mot de passe incorrect");
-    }
-  });
+      // Send the token as a response or redirect
+      res.json({ message: "Connexion réussie ✅", token });
+    });
+  } catch (err) {
+    console.error("Erreur lors de la tentative de connexion :", err);
+    res.status(500).send("Erreur lors de la tentative de connexion");
+  }
 });
 
 //404. If no route matches the URL requested by the consumer

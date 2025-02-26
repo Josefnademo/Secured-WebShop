@@ -2,27 +2,30 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>Page d’administration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../css/style.css" />
+    <title>Admin - Recherche d'utilisateur</title>
   </head>
   <body>
-    <h1>Bienvenue, sur la page d’administration!</h1>
-    <h2>Chercher pour des details des utilisateurs :</h2>
+    <h1>Page Admin</h1>
 
-    <search>
-      <form class="admin" action="/admin" method="GET">
-        <input
-          name="usersrch"
-          id="usersrch"
-          placeholder="Chercher un utilisateur"
-        />
-        <button type="submit" value="Submit">Chercher</button>
-      </form>
-    </search>
+    <form class="admin" action="/search-user" method="POST">
+      <label for="username">Rechercher un utilisateur :</label>
+      <input type="text" id="username" name="username" required />
+      <button type="submit">Rechercher</button>
+    </form>
 
-    <button class="admin">
-      <a href="./details">Voire mes details entant qu'admin</a>
-    </button>
-    <button class="admin"><a href="./home">Se déconnecter</a></button>
+    <div class="admin">
+      <% if (error) { %>
+      <p style="color: red"><%= error %></p>
+      <% } %> <% if (user) { %>
+      <h2>Informations de l'utilisateur :</h2>
+      <p><strong>ID :</strong> <%= user.id %></p>
+      <p><strong>Nom d'utilisateur :</strong> <%= user.username %></p>
+      <p><strong>Rôle :</strong> <%= user.role %></p>
+      <p><strong>Créé le :</strong> <%= user.created_at %></p>
+      <p><strong>Dernière mise à jour :</strong> <%= user.updated_at %></p>
+      <% } %>
+    </div>
   </body>
 </html>

@@ -4,7 +4,7 @@ const express = require("express");
 const mysql = require("mysql2");
 const bodyParser = require("express");
 const bcrypt = require("bcrypt");
-const userRoute = require("./routes/User");
+const userRoute = require("./routes/user.js");
 const db = require("./db/db.js");
 /*const path = require("path");*/
 const app = express();
@@ -59,44 +59,42 @@ app.get("/registration", (req, res) => {
   res.render("registration");
 });
 
+// Route pour afficher la page admin
 app.get("/admin", (req, res) => {
-  res.render("admin");
+  res.render("admin", { user: null, error: "" }); //No users displayed on initial load. No error messages at start.
 });
 
-/* app.get("/admin", (req, res) => {
-  const searchQuery = req.query.search || ""; // Obtenir le paramètre de recherche à partir de l'URL
+// Route pour rechercher un utilisateur
+app.post("/search-user", (req, res) => {
+  const { username } = req.body;
 
-  let query = "SELECT * FROM Users";
-  let params = [];
-
-  if (searchQuery) {
-    query += " WHERE username = ?";
-    params.push(searchQuery);
-  }
-
-  db.query(query, params, (err, results) => {
+  const query = "SELECT * FROM Users WHERE username = ?";
+  db.query(query, [username], (err, results) => {
     if (err) {
-      console.error("Erreur lors de la récupération des utilisateurs:", err);
-      return res.status(500).send("Erreur de base de données");
+      console.error("Erreur lors de la recherche :", err);
+      return res.render("admin", {
+        user: null,
+        error: "Erreur interne du serveur",
+      });
     }
 
-    db.query("SELECT username FROM Users", [], (err, allUsers) => {
-      if (err) {
-        console.error("Erreur lors de la récupération des noms:", err);
-        return res.status(500).send("Erreur de base de données");
-      }
-      res.render("admin", { users: results, searchQuery, allUsers });
-    });
+    if (results.length === 0) {
+      return res.render("admin", {
+        user: null,
+        error: "Utilisateur non trouvé",
+      });
+    }
+
+    res.render("admin", { user: results[0], error: "" });
   });
 });
-*/
 
 // Route for fetching and displaying user details
 app.get("/details", (req, res) => {
   const token = req.headers["authorization"]?.split(" ")[1]; // Get token from the header (Bearer token format)
 
   if (!token) {
-    return res.redirect("/home"); // If token is not present, redirect to login
+    return res.redirect("/login"); // If token is not present, redirect to login
   }
 
   jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {

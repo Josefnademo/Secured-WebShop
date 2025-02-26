@@ -9,22 +9,37 @@
   <body>
     <h1>Login</h1>
     <div class="login">
-      <h2>Bonjour! <%= name %> ,Vous pouvez vous connecter ici</h2>
-      <form action="/login" method="POST">
-        <h2>écrivez votre nom d'utilisateur ici</h2>
+      <h2>Bonjour! <%= name %>, Vous pouvez vous connecter ici</h2>
+
+      <form id="loginForm">
+        <h2>Écrivez votre nom d'utilisateur ici</h2>
         <div class="name">
-          <input type="text" placeholder="username" required />
+          <input
+            placeholder="Nom d'utilisateur"
+            type="text"
+            id="username"
+            name="username"
+            required
+          />
         </div>
 
-        <h2>écrivez votre mot de passe ici</h2>
+        <h2>Écrivez votre mot de passe ici</h2>
         <div class="password">
-          <input type="password" placeholder="mot de passe" required />
+          <input
+            placeholder="Mot de passe"
+            type="password"
+            id="password"
+            name="password"
+            required
+          />
         </div>
+
         <input type="submit" value="Se connecter" />
       </form>
     </div>
+
     <p class="login">
-      Voulez vous s'inscrir ? <a href="registration">S'inscrir</a>
+      Vous voulez vous inscrire ? <a href="/registration">S'inscrire</a>
     </p>
   </body>
 </html>

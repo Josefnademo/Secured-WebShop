@@ -8,11 +8,17 @@
   <body>
     <h1>Bienvenue, <%= user.username %>!</h1>
     <p>Voici vos détails :</p>
-    <ul>
-      <li>Nom d'utilisateur: <%= user.username %></li>
-      <li>ID: <%= user.id %></li>
-      <li>Mot de passe: (non visible pour la sécurité)</li>
-    </ul>
+
+    <div class="admin">
+      <% if (user) { %>
+      <h2>Votre informations:</h2>
+      <p><strong>ID :</strong> <%= user.id %></p>
+      <p><strong>Nom d'utilisateur :</strong> <%= user.username %></p>
+      <p><strong>Rôle :</strong> <%= user.role %></p>
+      <p><strong>Créé le :</strong> <%= user.created_at %></p>
+      <p><strong>Dernière mise à jour :</strong> <%= user.updated_at %></p>
+      <% } %>
+    </div>
 
     <a href="./home">Se déconnecter</a>
     <a href="./logout">logout</a>

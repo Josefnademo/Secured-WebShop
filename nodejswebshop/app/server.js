@@ -4,12 +4,14 @@ const express = require("express");
 const mysql = require("mysql2");
 const bodyParser = require("express");
 const bcrypt = require("bcrypt");
-const userRoute = require("./routes/user.js");
+//const userRoute = require("./routes/user.js");   - -DONT NEED IT, WE ARE USING THE ROUTES IN THE SAME FILE
 const db = require("./db/db.js");
 /*const path = require("path");*/
 const app = express();
-require("dotenv").config(); // Load environment variables from .env file
-const jwt = require("jsonwebtoken"); // JWT for authentication
+
+/*require("dotenv").config({ path: "../.env" }); // Load environment variables from .env file
+const jwt = require("jsonwebtoken"); // JWT for authentication*/
+const { Console } = require("console");
 
 /*
 // Load SSL certificates
@@ -62,7 +64,7 @@ app.get("/registration", (req, res) => {
 
 // Route to view admin page
 app.get("/admin", (req, res) => {
-  res.render("admin", { user: null, error: "" }); //No users displayed on initial load. No error messages at start.
+  res.render("admin", { users: [], error: "" }); //No users displayed on initial load. No error messages at start.
 });
 
 // Route to search for a user
@@ -70,33 +72,38 @@ app.post("/search-user", (req, res) => {
   const { username } = req.body;
   const searchPattern = "%" + username + "%"; // Add "%" to search pattern for LIKE query
 
-  //to prevent empty requests
+  // To prevent empty requests
   if (!username) {
     return res.render("admin", {
       users: [],
-      error: "Veuillez entrer un nom d'utilisateur",
+      error: "Veuillez entrer un nom d'utilisateur", // Error if no username is entered
     });
   }
 
-  //db.query() is a method commonly used in Node.js to interact with a database,
-  const query = "SELECT * FROM Users WHERE username LIKE ?"; //We use "?" as a parameter to avoid SQL injections.
+  // db.query() is a method commonly used in Node.js to interact with a database
+  const query = "SELECT * FROM Users WHERE username LIKE ?"; // We use "?" as a parameter to avoid SQL injections.
   db.query(query, [searchPattern], (err, results) => {
     if (err) {
       console.error("Erreur lors de la recherche :", err);
       return res.render("admin", {
-        user: null,
-        error: "Erreur interne du serveur",
+        users: [],
+        error: "Erreur interne du serveur", // Error in case of a server issue
       });
     }
-    //If no user is found
+
+    // If no user is found
     if (results.length === 0) {
       return res.render("admin", {
-        user: null,
-        error: "Utilisateur non trouvé",
+        users: [],
+        error: "Utilisateur non trouvé", // Error when user is not found
       });
     }
+
     // Render the page with the found users
-    res.render("admin", { user: results, error: "" });
+    res.render("admin", {
+      users: results, // Pass the list of users to the template
+      error: "", // Clear error message
+    });
   });
 });
 
@@ -153,8 +160,8 @@ app.get("/logout", (req, res) => {
 app.post("/registration", async (req, res) => {
   const { username, password, role = "user" } = req.body;
 
+  // Check if the username already exists
   try {
-    // Check if the username already exists
     const checkQuery = "SELECT * FROM Users WHERE username = ?";
     db.query(checkQuery, [username], async (err, results) => {
       if (err) {
@@ -186,7 +193,8 @@ app.post("/registration", async (req, res) => {
             console.error("Erreur lors de l'ajout de l'utilisateur :", err);
             return res.status(500).send("Erreur de base de données");
           }
-
+          console.log(hashedPassword);
+          console.log(username);
           // After successful registration, we redirect to the details page
           res.redirect("/login");
         });
@@ -204,14 +212,18 @@ app.post("/registration", async (req, res) => {
 // Route for handling POST request for login
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
-
+  console.log(password);
+  console.log(username);
   try {
     // Query to get the user by username
     const query = "SELECT * FROM Users WHERE username = ?";
-
+    console.log(password);
+    console.log(username);
     db.query(query, [username], async (err, results) => {
       if (err) {
         console.error("Erreur lors de la recherche de l'utilisateur :", err);
+        console.log(password);
+        console.log(username);
         return res.status(500).send("Erreur de base de données");
       }
 

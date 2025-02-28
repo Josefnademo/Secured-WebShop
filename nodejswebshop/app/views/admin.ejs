@@ -29,7 +29,15 @@
         <p><strong>Dernière mise à jour :</strong> <%= user.updated_at %></p>
         <hr />
       </div>
-      <% }); %> <% } %>
+      <% }); %> <% } else { %>
+      <p>Aucun utilisateur trouvé.</p>
+      <% } %>
+    </div>
+
+    <div class="registration">
+      <a href="/admin"><h2>retour à la page d'administration</h2></a>
+      <a href="/home"><h2>retour à la page d'accueil</h2></a>
+      <a href="/login"><h2>retour à la page de login</h2></a>
     </div>
   </body>
 </html>

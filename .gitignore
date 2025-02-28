@@ -10,3 +10,5 @@ node_modules/
 
 *.xlsm
  
+# env file
+# .env

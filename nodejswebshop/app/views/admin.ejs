@@ -18,14 +18,18 @@
     <div class="admin">
       <% if (error) { %>
       <p style="color: red"><%= error %></p>
-      <% } %> <% if (user) { %>
+      <% } %> <% if (users && users.length > 0) { %>
       <h2>Informations de l'utilisateur :</h2>
-      <p><strong>ID :</strong> <%= user.id %></p>
-      <p><strong>Nom d'utilisateur :</strong> <%= user.username %></p>
-      <p><strong>Rôle :</strong> <%= user.role %></p>
-      <p><strong>Créé le :</strong> <%= user.created_at %></p>
-      <p><strong>Dernière mise à jour :</strong> <%= user.updated_at %></p>
-      <% } %>
+      <% users.forEach(function(user) { %>
+      <div>
+        <p><strong>ID :</strong> <%= user.id %></p>
+        <p><strong>Nom d'utilisateur :</strong> <%= user.username %></p>
+        <p><strong>Rôle :</strong> <%= user.role %></p>
+        <p><strong>Créé le :</strong> <%= user.created_at %></p>
+        <p><strong>Dernière mise à jour :</strong> <%= user.updated_at %></p>
+        <hr />
+      </div>
+      <% }); %> <% } %>
     </div>
   </body>
 </html>

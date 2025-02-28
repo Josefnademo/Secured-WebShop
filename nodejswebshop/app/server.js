@@ -8,7 +8,8 @@ const userRoute = require("./routes/user.js");
 const db = require("./db/db.js");
 /*const path = require("path");*/
 const app = express();
-//const jwt = require("jsonwebtoken");  ---problem when installed "npm install jsonwebtoken" i had 13 vulnerabilities so i couldn't impliment this, FIX!
+require("dotenv").config(); // Load environment variables from .env file
+const jwt = require("jsonwebtoken"); // JWT for authentication
 
 /*
 // Load SSL certificates
@@ -49,27 +50,37 @@ app.get(["/", "/home", "/accueil"], (req, res) => {
   res.render("home", { name: "Invité" });
 });
 
-// Other routes and middleware
+// Route to view login page
 app.get("/login", (req, res) => {
   res.render("login", { name: "Mon  cœur " });
 });
 
-// Other routes and middleware
+// Route to view registration page
 app.get("/registration", (req, res) => {
   res.render("registration");
 });
 
-// Route pour afficher la page admin
+// Route to view admin page
 app.get("/admin", (req, res) => {
   res.render("admin", { user: null, error: "" }); //No users displayed on initial load. No error messages at start.
 });
 
-// Route pour rechercher un utilisateur
+// Route to search for a user
 app.post("/search-user", (req, res) => {
   const { username } = req.body;
+  const searchPattern = "%" + username + "%"; // Add "%" to search pattern for LIKE query
 
-  const query = "SELECT * FROM Users WHERE username = ?";
-  db.query(query, [username], (err, results) => {
+  //to prevent empty requests
+  if (!username) {
+    return res.render("admin", {
+      users: [],
+      error: "Veuillez entrer un nom d'utilisateur",
+    });
+  }
+
+  //db.query() is a method commonly used in Node.js to interact with a database,
+  const query = "SELECT * FROM Users WHERE username LIKE ?"; //We use "?" as a parameter to avoid SQL injections.
+  db.query(query, [searchPattern], (err, results) => {
     if (err) {
       console.error("Erreur lors de la recherche :", err);
       return res.render("admin", {
@@ -77,29 +88,31 @@ app.post("/search-user", (req, res) => {
         error: "Erreur interne du serveur",
       });
     }
-
+    //If no user is found
     if (results.length === 0) {
       return res.render("admin", {
         user: null,
         error: "Utilisateur non trouvé",
       });
     }
-
-    res.render("admin", { user: results[0], error: "" });
+    // Render the page with the found users
+    res.render("admin", { user: results, error: "" });
   });
 });
 
 // Route for fetching and displaying user details
 app.get("/details", (req, res) => {
-  const token = req.headers["authorization"]?.split(" ")[1]; // Get token from the header (Bearer token format)
+  const token = req.headers["authorization"]?.split(" ")[1]; // Get token from the header
 
   if (!token) {
+    const message = "Token non fourni, redirection vers la page de connexion";
+    console.log(message);
     return res.redirect("/login"); // If token is not present, redirect to login
   }
 
   jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
     if (err) {
-      console.error("Invalid or expired token:", err);
+      console.error("Token invalide ou expiré:", err);
       return res.status(401).send("Token invalide ou expiré");
     }
 
@@ -197,13 +210,11 @@ app.post("/login", async (req, res) => {
     const query = "SELECT * FROM Users WHERE username = ?";
 
     db.query(query, [username], async (err, results) => {
-      // Error: Database query error
       if (err) {
         console.error("Erreur lors de la recherche de l'utilisateur :", err);
         return res.status(500).send("Erreur de base de données");
       }
 
-      // If no user found
       if (results.length === 0) {
         return res.status(400).send("Utilisateur ou mot de passe incorrect");
       }
@@ -213,17 +224,15 @@ app.post("/login", async (req, res) => {
       // Compare the entered password with the stored hashed password
       const match = await bcrypt.compare(password, user.password);
 
-      // If password doesn't match
       if (!match) {
         return res.status(400).send("Utilisateur ou mot de passe incorrect");
       }
 
-      // If login is successful, you can generate a JWT token or set a session
-      const token = jwt.sign({ userId: user.id }, "yourSecretKey", {
-        expiresIn: "1000h",
+      // Generate JWT token
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY, {
+        expiresIn: "1h",
       });
 
-      // Send the token as a response or redirect
       res.json({ message: "Connexion réussie ✅", token });
     });
   } catch (err) {

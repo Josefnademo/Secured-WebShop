@@ -1,3 +1,4 @@
+//require("dotenv").config({ path: "../.env" }); // Load environment variables from .env file
 const https = require("https");
 const fs = require("fs");
 const express = require("express");
@@ -6,11 +7,9 @@ const bodyParser = require("express");
 const bcrypt = require("bcrypt");
 //const userRoute = require("./routes/user.js");   - -DONT NEED IT, WE ARE USING THE ROUTES IN THE SAME FILE
 const db = require("./db/db.js");
-/*const path = require("path");*/
 const app = express();
 
-require("dotenv").config({ path: "../.env" }); // Load environment variables from .env file
-const jwt = require("jsonwebtoken"); // JWT for authentication*/
+//const jwt = require("jsonwebtoken"); // JWT for authentication*/
 const { Console } = require("console");
 
 /*
@@ -216,8 +215,6 @@ app.post("/login", async (req, res) => {
   console.log(username);
   try {
     const query = "SELECT * FROM Users WHERE username = ?";
-    console.log(password);
-    console.log(username);
     db.query(query, [username], async (err, results) => {
       if (err) {
         console.error("Erreur lors de la recherche de l'utilisateur :", err);
@@ -247,6 +244,7 @@ app.post("/login", async (req, res) => {
       });
 
       res.json({ message: "Connexion réussie ✅", token });
+      //res.redirect("/details"); // After logging in, we redirect you to the details page
     });
   } catch (err) {
     console.error("Erreur lors de la tentative de connexion :", err);

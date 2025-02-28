@@ -9,7 +9,7 @@ const db = require("./db/db.js");
 /*const path = require("path");*/
 const app = express();
 
-/*require("dotenv").config({ path: "../.env" }); // Load environment variables from .env file
+require("dotenv").config({ path: "../.env" }); // Load environment variables from .env file
 const jwt = require("jsonwebtoken"); // JWT for authentication*/
 const { Console } = require("console");
 
@@ -215,7 +215,6 @@ app.post("/login", async (req, res) => {
   console.log(password);
   console.log(username);
   try {
-    // Query to get the user by username
     const query = "SELECT * FROM Users WHERE username = ?";
     console.log(password);
     console.log(username);
@@ -224,32 +223,36 @@ app.post("/login", async (req, res) => {
         console.error("Erreur lors de la recherche de l'utilisateur :", err);
         console.log(password);
         console.log(username);
-        return res.status(500).send("Erreur de base de données");
+        return res.status(500).json({ message: "Erreur de base de données" });
       }
 
       if (results.length === 0) {
-        return res.status(400).send("Utilisateur ou mot de passe incorrect");
+        return res
+          .status(400)
+          .json({ message: "Utilisateur ou mot de passe incorrect" });
       }
 
       const user = results[0];
 
-      // Compare the entered password with the stored hashed password
       const match = await bcrypt.compare(password, user.password);
 
       if (!match) {
-        return res.status(400).send("Utilisateur ou mot de passe incorrect");
+        return res
+          .status(400)
+          .json({ message: "Utilisateur ou mot de passe incorrect" });
       }
 
-      // Generate JWT token
       const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY, {
-        expiresIn: "1h",
+        expiresIn: "30m",
       });
 
       res.json({ message: "Connexion réussie ✅", token });
     });
   } catch (err) {
     console.error("Erreur lors de la tentative de connexion :", err);
-    res.status(500).send("Erreur lors de la tentative de connexion");
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la tentative de connexion" });
   }
 });
 

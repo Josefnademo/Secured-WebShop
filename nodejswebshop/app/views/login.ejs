@@ -12,8 +12,8 @@
       <h2>Bonjour! <%= name %>, Vous pouvez vous connecter ici</h2>
 
       <form id="loginForm" action="/login" method="POST">
-        <h2>Écrivez votre nom d'utilisateur ici</h2>
         <div class="name">
+          <label for="username">Nom d'utilisateur :</label>
           <input
             placeholder="Nom d'utilisateur"
             type="text"
@@ -23,8 +23,8 @@
           />
         </div>
 
-        <h2>Écrivez votre mot de passe ici</h2>
         <div class="password">
+          <label for="password">Mot de passe :</label>
           <input
             placeholder="Mot de passe"
             type="password"
@@ -34,7 +34,7 @@
           />
         </div>
 
-        <input type="submit" value="Se connecter" />
+        <button type="submit" value="Submit">Se connecter</button>
       </form>
     </div>
 

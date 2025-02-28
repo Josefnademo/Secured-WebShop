@@ -62,7 +62,7 @@ h2 {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto;
-  row-gap: 15px;
+  row-gap: 10px;
   justify-items: center;
   padding: 20px;
   background-color: #fff;
@@ -108,7 +108,7 @@ input[type="submit"] {
   cursor: pointer;
   padding: 12px;
   border-radius: 5px;
-  transition: background-color 0.3s ease, transform 0.2s ease; /* Add smooth transitions */
+  transition: background-color 0.4s ease, transform 0.2s ease; /* Add smooth transitions */
 }
 
 input[type="submit"]:hover {
@@ -127,9 +127,22 @@ button {
   cursor: pointer;
   padding: 12px;
   border-radius: 5px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  width: 100%;
+  margin-top: 15px;
 }
 
 button:hover {
   background-color: #45a049; /* Slightly darker green when hovered */
+  transform: translateY(-5px); /* Slight hover effect */
+}
+
+button:active {
+  background-color: #4645a0; /* Slightly darker green when hovered */
+  transform: translateY(-2px); /* Slight hover effect */
+}
+
+button:focus {
+  border-color: #6a1b9a; /* Purple border when focused */
+  outline: none; /* Remove default focus outline */
 }

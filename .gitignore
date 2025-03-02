@@ -4,11 +4,11 @@ node_modules/
  
 # Office documents
 
-*.docx
+# *.docx
 
-*.xlsx
+# *.xlsx
 
-*.xlsm
+# *.xlsm
  
 # env file
 # .env

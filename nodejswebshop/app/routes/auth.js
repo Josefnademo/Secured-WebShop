@@ -7,7 +7,7 @@ module.exports = router;
 
 app.use("/auth", userRoute);
 /////*/
-const express = require("express");
+/*const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const db = require("./db"); // Assure-toi que c'est bien la connexion à ta base de données
@@ -74,3 +74,4 @@ app.post("/login", async (req, res) => {
 });
 
 module.exports = app;
+*/

@@ -1,23 +1,22 @@
-//require("dotenv").config({ path: "../.env" }); // Load environment variables from .env file
+//require("dotenv").config({ path: "../.env" }); // config() Load environment variables from .env file
+const http = require("http");
 const https = require("https");
 const fs = require("fs");
 const express = require("express");
 const mysql = require("mysql2");
 const bodyParser = require("express");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt"); // for password hashing
+const jwt = require("jsonwebtoken"); // JWT for authentication
 //const userRoute = require("./routes/user.js");   - -DONT NEED IT, WE ARE USING THE ROUTES IN THE SAME FILE
 const db = require("./db/db.js");
+const { Console } = require("console");
 const app = express();
 
-//const jwt = require("jsonwebtoken"); // JWT for authentication*/
-const { Console } = require("console");
-
-/*
 // Load SSL certificates
 const options = {
-  key: fs.readFileSync("key.pem"), // Path to your private key
-  cert: fs.readFileSync("cert.pem"), // Path to your certificate
-};*/
+  key: fs.readFileSync("key.pem"), // ../../key.pem  Path to your private key
+  cert: fs.readFileSync("cert.pem"), // ../../cert.pem Path to your certificate
+};
 
 app.use(bodyParser.urlencoded({ extended: true })); // parser to interact with form-data
 app.use(bodyParser.json()); // for JSON-requests
@@ -30,21 +29,14 @@ app.use(express.static("public"));
 
 // Middleware for parsing data from the form
 app.use(express.urlencoded({ extended: true }));
-/*
-// Create HTTPS server with Middleware
-https.createServer(options, app).listen(8443, () => {
-  console.log("HTTPS server running on https://localhost:8443 ✅");
-});
 
-// Redirige les requêtes HTTP vers HTTPS
+// Middleware to redirect HTTP to HTTPS
 app.use((req, res, next) => {
   if (req.protocol !== "https") {
-    return res.redirect(
-      "https://" + req.headers.host.replace(8080, 8443) + req.url
-    );
+    return res.redirect("https://" + req.headers.host + req.url);
   }
   next();
-});*/
+});
 
 //Default route
 app.get(["/", "/home", "/accueil"], (req, res) => {
@@ -262,6 +254,20 @@ app.use((req, res) => {
 });
 
 // server butting
-app.listen(8080, () => {
-  console.log("Serveur fonctionnant sur le port 8080✅ ");
+// Create HTTP server to redirect to HTTPS
+//301 (Moved Permanently) tells browsers and other clients that they should use HTTPS for all future requests to this resource.
+http
+  .createServer((req, res) => {
+    res.writeHead(301, {
+      Location: "https://" + req.headers["host"] + req.url,
+    });
+    res.end();
+  })
+  .listen(8080, () => {
+    console.log("HTTP server running on port 8080 and redirecting to HTTPS ✅");
+  });
+
+// Create HTTPS server with Middleware
+https.createServer(options, app).listen(8443, () => {
+  console.log("HTTPS server running on https://localhost:8443 ✅");
 });

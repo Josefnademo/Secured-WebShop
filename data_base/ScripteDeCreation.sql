@@ -1,10 +1,10 @@
 -- Create a database
-CREATE database webshop183;
- USE webshop183;
+CREATE DATABASE IF NOT EXISTS webshop183;
+USE webshop183;
 
 -- 1: Create roles
-CREATE ROLE 'user';
-CREATE ROLE 'admin';
+CREATE ROLE IF NOT EXISTS 'user';
+CREATE ROLE IF NOT EXISTS 'admin';
 
 -- 2: Grant permissions to roles
 GRANT SELECT, INSERT, UPDATE, DELETE ON webshop183.* TO 'user';
@@ -22,7 +22,8 @@ SET DEFAULT ROLE 'admin' TO 'admin_username'@'localhost';
 SHOW GRANTS FOR 'username'@'localhost';
 SHOW GRANTS FOR 'admin_username'@'localhost';
 
-CREATE TABLE Users (
+-- Create Users table
+CREATE TABLE IF NOT EXISTS Users (
   id INT AUTO_INCREMENT PRIMARY KEY,        -- User's unique ID
   username VARCHAR(255) NOT NULL UNIQUE,    -- Username (unique for each user)
   password VARCHAR(255) NOT NULL,           -- Password (hashed and salted)

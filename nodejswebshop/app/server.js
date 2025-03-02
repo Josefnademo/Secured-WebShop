@@ -14,8 +14,8 @@ const app = express();
 
 // Load SSL certificates
 const options = {
-  key: fs.readFileSync("key.pem"), // ../../key.pem  Path to your private key
-  cert: fs.readFileSync("cert.pem"), // ../../cert.pem Path to your certificate
+  key: fs.readFileSync("../../key.pem"), // ../../key.pem  Path to your private key
+  cert: fs.readFileSync("../../cert.pem"), // ../../cert.pem Path to your certificate
 };
 
 app.use(bodyParser.urlencoded({ extended: true })); // parser to interact with form-data

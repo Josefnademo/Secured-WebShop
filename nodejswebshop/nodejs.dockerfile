@@ -17,6 +17,7 @@ COPY app/ ./
 
 # Expose port for the Node.js app
 EXPOSE 8080
+# EXPOSE 8443
 
 # Start the app using nodemon
 CMD ["nodemon", "server.js"]

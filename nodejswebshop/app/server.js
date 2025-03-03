@@ -14,8 +14,8 @@ const app = express();
 
 // Load SSL certificates
 const options = {
-  key: fs.readFileSync("../../key.pem"), // ../../key.pem  Path to your private key
-  cert: fs.readFileSync("../../cert.pem"), // ../../cert.pem Path to your certificate
+  key: fs.readFileSync("key.pem"), // ../../key.pem  Path to your private key
+  cert: fs.readFileSync("cert.pem"), // ../../cert.pem Path to your certificate
 };
 
 app.use(bodyParser.urlencoded({ extended: true })); // parser to interact with form-data
@@ -29,14 +29,6 @@ app.use(express.static("public"));
 
 // Middleware for parsing data from the form
 app.use(express.urlencoded({ extended: true }));
-
-// Middleware to redirect HTTP to HTTPS
-app.use((req, res, next) => {
-  if (req.protocol !== "https") {
-    return res.redirect("https://" + req.headers.host + req.url);
-  }
-  next();
-});
 
 //Default route
 app.get(["/", "/home", "/accueil"], (req, res) => {
@@ -108,7 +100,7 @@ app.get("/details", (req, res) => {
     return res.redirect("/login"); // If token is not present, redirect to login
   }
 
-  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+  jwt.verify(token, "process.env.JWT_SECRET_KEY", (err, decoded) => {
     if (err) {
       console.error("Token invalide ou expiré:", err);
       return res.status(401).send("Token invalide ou expiré");
@@ -231,12 +223,16 @@ app.post("/login", async (req, res) => {
           .json({ message: "Utilisateur ou mot de passe incorrect" });
       }
 
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY, {
-        expiresIn: "30m",
-      });
+      const token = jwt.sign(
+        { userId: user.id },
+        "process.env.JWT_SECRET_KEY",
+        {
+          expiresIn: "30m",
+        }
+      );
 
       res.json({ message: "Connexion réussie ✅", token });
-      //res.redirect("/details"); // After logging in, we redirect you to the details page
+      res.redirect("/details"); // After logging in, we redirect you to the details page
     });
   } catch (err) {
     console.error("Erreur lors de la tentative de connexion :", err);
@@ -253,21 +249,9 @@ app.use((req, res) => {
   res.status(404).json(message); //json attends l'objet
 });
 
-// server butting
-// Create HTTP server to redirect to HTTPS
-//301 (Moved Permanently) tells browsers and other clients that they should use HTTPS for all future requests to this resource.
-http
-  .createServer((req, res) => {
-    res.writeHead(301, {
-      Location: "https://" + req.headers["host"] + req.url,
-    });
-    res.end();
-  })
-  .listen(8080, () => {
-    console.log("HTTP server running on port 8080 and redirecting to HTTPS ✅");
-  });
+// HTTPS server butting
+const server = https.createServer(options, app);
 
-// Create HTTPS server with Middleware
-https.createServer(options, app).listen(8443, () => {
+server.listen(8443, () => {
   console.log("HTTPS server running on https://localhost:8443 ✅");
 });

@@ -3,7 +3,12 @@ const mysql = require("mysql2");
 
 //create a connection to the DB
 const db = mysql.createConnection({
+  ///FOR BUTTING VIA - LOCALHOST SERVER Node.JS(use localhost and port 6033)
+  //host: "localhost", // Use localhost instead of db_container
+  // port: 6033, // Specify the port to which MySQL is forwarded
+  ///FOR BUTTING VIA - DOCKER (use host name of the container)
   host: "db_container", //docker container name
+  //////////////////
   user: "root",
   password: "root",
   database: "webshop183",
@@ -15,9 +20,19 @@ db.connect((err) => {
     console.error("Erreur de connexion à MySQL : ", err);
   } else {
     console.log("Connecté à MySQL !✅");
+
+    // Query to check the Users table   *NOT NESSESARY*
+    const query = "SELECT * FROM Users"; // Adjust with your actual table name
+
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Erreur de récupération des données : ", err);
+      } else {
+        console.log("Données de la table Users : ", results);
+      }
+    });
   }
 });
-
 // Export db for use in other files
 module.exports = db;
 

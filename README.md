@@ -4,8 +4,8 @@ Ce projet P_APP_183 : Secured WebShop consiste à développer un site e-commerce
 ## Objectifs principaux
 - Authentification sécurisée : Implémentation d’un système d'authentification avec hachage et salage des mots de passe, ainsi que l'utilisation de JWT (JSON Web Token) pour gérer les sessions utilisateurs.
 - Séparation des rôles : Deux types d’utilisateurs sont définis :
--- Clients : Ils peuvent s’inscrire, se connecter et accéder à leur profil.
--- Administrateurs : Ils ont des privilèges pour rechercher des utilisateurs et gérer des données sensibles.
+ - Clients : Ils peuvent s’inscrire, se connecter et accéder à leur profil.
+ - Administrateurs : Ils ont des privilèges pour rechercher des utilisateurs et gérer des données sensibles.
 - Sécurisation du site : Protection contre les injections SQL et utilisation d’un certificat HTTPS pour garantir la confidentialité des échanges.
 - Développement backend et frontend : Utilisation de Node.js pour le backend et MySQL pour la base de données.
 - Déploiement avec Docker : Containerisation des services pour un environnement sécurisé et reproductible.

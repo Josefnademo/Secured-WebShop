@@ -1,37 +1,104 @@
-/*const express = require("express");
-const router = express.Router();
+const express = require("express");
 
-const controller = require("../controllers/AuthController");
-router.get("/", controller.get);
-module.exports = router;
+///////////////////////////////////////////
 
-app.use("/auth", userRoute);
-/////*/
-/*const express = require("express");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const db = require("./db"); // Assure-toi que c'est bien la connexion à ta base de données
-require("dotenv").config(); // Pour utiliser les variables d'environnement
+const mysql = require("mysql2");
+const bodyParser = require("express");
+const bcrypt = require("bcrypt"); // for password hashing
+const jwt = require("jsonwebtoken"); // JWT for authentication
+const db = require("../db/db.js");
+const { Console } = require("console");
 
-const app = express();
-app.use(express.json()); // Pour parser les requêtes JSON
+const authRouter = express.Router();
+authRouter.use(express.json()); // Pour parser les requêtes JSON
+///////////////////////////////////////////
 
-app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+// Route to view registration page
+authRouter.get("/registration", (req, res) => {
+  res.render("registration");
+});
 
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ message: "Nom d'utilisateur et mot de passe sont requis." });
-  }
+// Route to view login page
+authRouter.get("/login", (req, res) => {
+  res.render("login", { name: "Mon  cœur " });
+});
 
+//Logout route
+authRouter.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    //error: Disconnection error
+    if (err) {
+      return res.status(500).send("Erreur de déconnexion");
+    }
+    res.redirect("/login");
+  });
+});
+
+// Route for handling POST request for registration
+authRouter.post("/registration", async (req, res) => {
+  const { username, password, role = "user" } = req.body;
+
+  // Check if the username already exists
   try {
-    // Requête SQL pour récupérer l'utilisateur
-    const query = "SELECT * FROM Users WHERE username = ?";
+    const checkQuery = "SELECT * FROM Users WHERE username = ?";
+    db.query(checkQuery, [username], async (err, results) => {
+      if (err) {
+        console.error(
+          "Erreur lors de la vérification du nom d'utilisateur :",
+          err
+        );
+        return res.status(500).send("Erreur de base de données");
+      }
 
+      // If the username already exists, return an error message
+      if (results.length > 0) {
+        return res.status(400).send("Ce nom d'utilisateur est déjà pris");
+      }
+
+      try {
+        // Generating salt for bcrypt
+        const salt = await bcrypt.genSalt(4); // `4 — number of turns of the algorithm`
+
+        // Password Hashing(even if two users have the same password, their hashes will be different.)
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Insert data into the database (with encrypted password)
+        const query =
+          "INSERT INTO Users (username, password, role) VALUES (?, ?, ?)";
+        db.query(query, [username, hashedPassword, role], (err, results) => {
+          //error: Database error
+          if (err) {
+            console.error("Erreur lors de l'ajout de l'utilisateur :", err);
+            return res.status(500).send("Erreur de base de données");
+          }
+          console.log(hashedPassword);
+          console.log(username);
+          // After successful registration, we redirect to the details page
+          res.redirect("/login");
+        });
+      } catch (err) {
+        console.error("Erreur lors du hachage du mot de passe :", err);
+        res.status(500).send("Erreur lors du hachage du mot de passe");
+      }
+    });
+  } catch (err) {
+    console.error("Erreur lors du traitement de la demande :", err);
+    res.status(500).send("Erreur lors du traitement de la demande");
+  }
+});
+
+// Route for handling POST request for login
+authRouter.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  console.log(password);
+  console.log(username);
+  try {
+    const query = "SELECT * FROM Users WHERE username = ?";
     db.query(query, [username], async (err, results) => {
       if (err) {
         console.error("Erreur lors de la recherche de l'utilisateur :", err);
+        console.log(password);
+        console.log(username);
         return res.status(500).json({ message: "Erreur de base de données" });
       }
 
@@ -43,27 +110,24 @@ app.post("/login", async (req, res) => {
 
       const user = results[0];
 
-      // Vérifier le mot de passe haché
       const match = await bcrypt.compare(password, user.password);
+
       if (!match) {
         return res
           .status(400)
           .json({ message: "Utilisateur ou mot de passe incorrect" });
       }
 
-      // Générer un token JWT avec le rôle de l'utilisateur
       const token = jwt.sign(
-        { userId: user.id, role: user.role },
-        process.env.JWT_SECRET_KEY || "yourSecretKey",
-        { expiresIn: "1000h" }
+        { userId: user.id },
+        "process.env.JWT_SECRET_KEY",
+        {
+          expiresIn: "30m",
+        }
       );
 
-      // Réponse JSON avec message et redirection côté client
-      res.json({
-        message: "Connexion réussie ✅",
-        token,
-        role: user.role, // On envoie la role pour gérer la redirection côté client
-      });
+      res.json({ message: "Connexion réussie ✅", token });
+      res.redirect("/details"); // After logging in, we redirect you to the details page
     });
   } catch (err) {
     console.error("Erreur lors de la tentative de connexion :", err);
@@ -73,5 +137,4 @@ app.post("/login", async (req, res) => {
   }
 });
 
-module.exports = app;
-*/
+module.exports = authRouter;

@@ -9,7 +9,7 @@ adminRouter.get("/", controller.get);
 
 // Route to view admin page
 adminRouter.get("/admin", (req, res) => {
-  res.render("admin", { users: [], error: "" }); //No users displayed on initial load. No error messages at start.
+  res.render("admin", { lieux: [], error: "" }); //No users displayed on initial load. No error messages at start.
 });
 
 module.exports = adminRouter;

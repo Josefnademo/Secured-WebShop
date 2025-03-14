@@ -4,33 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../css/style.css" />
-    <title>Admin - Recherche d'utilisateur</title>
+    <title>Page de Recherche</title>
   </head>
   <body>
-    <h1>Page Admin</h1>
+    <h1>Page de Recherche</h1>
 
     <form class="admin" action="/search-user" method="POST">
-      <label for="username">Rechercher un utilisateur :</label>
-      <input type="text" id="username" name="username" required />
+      <label for="nom">Rechercher un lieu :</label>
+      <input type="text" id="nom" name="nom" list="suggestions" required />
+      <datalist id="suggestions"></datalist>
       <button type="submit">Rechercher</button>
     </form>
 
     <div class="admin">
       <% if (error) { %>
       <p style="color: red"><%= error %></p>
-      <% } %> <% if (users && users.length > 0) { %>
-      <h2>Informations de l'utilisateur :</h2>
-      <% users.forEach(function(user) { %>
+      <% } %> <% if (lieux && lieux.length > 0) { %>
+      <h2>Informations du lieu :</h2>
+      <% lieux.forEach(function(lieu) { %>
       <div>
-        <p><strong>ID :</strong> <%= user.id %></p>
-        <p><strong>Nom d'utilisateur :</strong> <%= user.username %></p>
-        <p><strong>Rôle :</strong> <%= user.role %></p>
-        <p><strong>Créé le :</strong> <%= user.created_at %></p>
-        <p><strong>Dernière mise à jour :</strong> <%= user.updated_at %></p>
+        <p><strong>ID :</strong> <%= lieu.lieu_id %></p>
+        <p><strong>Nom :</strong> <%= lieu.nom %></p>
+        <p><strong>Longitude :</strong> <%= lieu.longitude %></p>
+        <p><strong>Latitude :</strong> <%= lieu.latitude %></p>
+        <p><strong>Particularité :</strong> <%= lieu.particularite %></p>
         <hr />
       </div>
       <% }); %> <% } else { %>
-      <p>Aucun utilisateur trouvé.</p>
+      <p>Aucun lieu trouvé.</p>
       <% } %>
     </div>
 
@@ -40,5 +41,24 @@
       <a href="/login"><h2>retour à la page de login</h2></a>
       <a href="/details"><h2>retour à la page des details</h2></a>
     </div>
+
+    <script>
+      document.getElementById("nom").addEventListener("input", function () {
+        const query = this.value;
+        if (query.length > 2) {
+          fetch(`/suggest-lieu?query=${query}`)
+            .then((response) => response.json())
+            .then((data) => {
+              const datalist = document.getElementById("suggestions");
+              datalist.innerHTML = "";
+              data.forEach((item) => {
+                const option = document.createElement("option");
+                option.value = item.nom;
+                datalist.appendChild(option);
+              });
+            });
+        }
+      });
+    </script>
   </body>
 </html>
